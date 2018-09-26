@@ -8,9 +8,10 @@ public class PlayerController : MonoBehaviour
 	public float moveSpeed,movement;
 
 	public bool facingRightSide;
-	public GameObject around;
 	private GameObject gun;
 	private Vector3 positionMouse;
+	private bool isJumping;
+	public GameObject gunPoint;
 	
 	void Start ()
 	{
@@ -23,7 +24,22 @@ public class PlayerController : MonoBehaviour
 	void Update () {
 		Movement();
 		GunLookingAt();
+		Shoot();
 	}
+
+
+	void Shoot()
+	{
+		if (Input.GetMouseButtonDown(0))
+		{
+			RaycastHit2D hit;
+			hit = Physics2D.Raycast(gunPoint.transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition),Mathf.Infinity);
+			Debug.DrawRay(gunPoint.transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition));
+		}
+	}
+	
+	
+	
 	void Movement()
 	{
 		movement = Input.GetAxis("Horizontal");
@@ -37,28 +53,21 @@ public class PlayerController : MonoBehaviour
 		{
 			Flip();
 		}
+		//Pulo
+		if(Input.GetKeyDown(KeyCode.Space)&&isJumping==false)
+		{
+			this.GetComponent<Rigidbody2D>().AddForce(new Vector2(0, 9), ForceMode2D.Impulse);
+			isJumping = true;
+		}
 	}
 
 	void GunLookingAt()
 	{
+		//controla onde a arma esta olhando;
 		Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - gun.transform.position;
 		float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 		Quaternion rotation = Quaternion.AngleAxis(angle,Vector3.forward);
 		gun.transform.rotation = Quaternion.Slerp(gun.transform.rotation,rotation,5f*Time.deltaTime);
-
-		/*positionMouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		positionMouse = new Vector3(positionMouse.x,positionMouse.y,0);
-		if (facingRightSide)
-		{
-			gun.transform.right = positionMouse - gun.transform.position;
-			gun.transform.RotateAround(around.transform.position, new Vector3(0, 0, 1),1f);
-				
-		}
-
-		if (!facingRightSide)
-		{
-			gun.transform.right = (positionMouse - gun.transform.position) * -1;
-		}*/
 	}
 
 	void Flip()
@@ -69,5 +78,13 @@ public class PlayerController : MonoBehaviour
 		objs[0].transform.localScale = objScale;
 		facingRightSide =! facingRightSide;
 	}
-	
+
+	private void OnCollisionEnter2D(Collision2D other)
+	{
+		if (other.gameObject.tag == "Ground")
+		{
+			//Quando bater no chao, boleana para nao pular de novo reset
+			isJumping = false;
+		}
+	}
 }
