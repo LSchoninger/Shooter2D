@@ -33,8 +33,10 @@ public class PlayerController : MonoBehaviour
 		if (Input.GetMouseButtonDown(0))
 		{
 			RaycastHit2D hit;
-			hit = Physics2D.Raycast(gunPoint.transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition),Mathf.Infinity);
-			Debug.DrawRay(gunPoint.transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition));
+			positionMouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			positionMouse.z = 0;
+			hit = Physics2D.Raycast(gunPoint.transform.position,positionMouse ,Mathf.Infinity);
+			Debug.DrawRay(gunPoint.transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition));
 		}
 	}
 	
